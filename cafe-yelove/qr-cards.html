@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Table QR cards · Cafe Yelove</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,500;1,600&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--cream:#f6eee3;--paper:#fffaf2;--terra:#c8503a;--brown:#3a2117;--muted:#7d6657;--line:rgba(58,33,23,.14);--serif:'Playfair Display',Georgia,serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--cream);font-family:Inter,system-ui,sans-serif;color:var(--brown);padding:28px}
+.bar{display:flex;gap:12px;align-items:end;flex-wrap:wrap;background:var(--paper);border:1.5px solid var(--line);border-radius:20px;padding:18px 20px;margin-bottom:24px}
+.bar h1{font-family:var(--serif);font-size:24px;margin-right:auto}
+.bar label{display:grid;gap:5px;font-size:12px;font-weight:600;color:var(--muted)}
+.bar input{padding:10px 12px;border-radius:10px;border:1.5px solid var(--line);font:inherit;min-width:90px}
+.bar input#base{min-width:320px}
+.bar button{padding:11px 18px;border-radius:99px;border:0;background:var(--terra);color:#fff;font-weight:600;cursor:pointer}
+.hint{font-size:13px;color:var(--muted);margin:-12px 0 20px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:18px}
+.card{background:var(--paper);border-radius:24px;padding:26px 20px 22px;text-align:center;border:1.5px solid var(--line);break-inside:avoid}
+.card .n{font-family:var(--serif);font-style:italic;color:var(--terra);font-size:26px}
+.card h2{font-family:var(--serif);font-size:22px;margin:4px 0 14px}
+.card .qr{width:170px;height:170px;margin:0 auto}
+.card .qr svg{width:100%;height:100%}
+.card .t{display:inline-block;margin-top:16px;background:var(--terra);color:#fff;font-weight:700;letter-spacing:2px;padding:8px 18px;border-radius:99px;font-size:14px}
+.card p{font-size:12px;color:var(--muted);margin-top:10px;font-style:italic;font-family:var(--serif)}
+@media print{body{background:#fff;padding:0}.bar,.hint{display:none}.grid{grid-template-columns:repeat(3,1fr);gap:10mm}.card{border:1px solid #ddd}}
+</style>
+</head>
+<body>
+<div class="bar">
+  <h1>Table QR cards</h1>
+  <label>Website address<input id="base"></label>
+  <label>Tables<input id="count" type="number" min="1" max="60"></label>
+  <button id="go">Update</button>
+  <button id="print">Print</button>
+</div>
+<p class="hint">Use the first card as one QR for the whole café (guests type their table number), or print a card per table, where the number is pre-filled and can still be changed. Set the address to the live site before printing.</p>
+<div class="grid" id="grid"></div>
+<script src="js/config.js"></script>
+<script src="js/vendor/qrcode.js"></script>
+<script>
+(function(){
+  const cfg=window.YELOVE_CONFIG||{};
+  const base=document.getElementById('base'),count=document.getElementById('count');
+  base.value=location.href.replace(/qr-cards\.html.*$/,'');count.value=cfg.TABLES||15;
+  function draw(){
+    let b=base.value.trim();if(!/\/$/.test(b)&&!/\.html$/.test(b))b+='/';
+    const n=Math.max(1,Math.min(60,parseInt(count.value,10)||1));let html='';
+    const home=(/\.html$/.test(b)?b.replace(/[^/]*\.html$/,'order.html'):b+'order.html');const g=qrcode(0,'M');g.addData(home);g.make();
+    html+=`<div class="card"><div class="n">${cfg.CAFE_NAME||'Cafe Yelove'}</div><h2>Scan to order</h2><div class="qr">${g.createSvgTag({cellSize:4,margin:0,scalable:true})}</div><span class="t">ANY TABLE</span><p>Add your name &amp; table number when you order</p></div>`;
+    for(let i=1;i<=n;i++){const url=home+'?table='+i;const q=qrcode(0,'M');q.addData(url);q.make();
+      html+=`<div class="card"><div class="n">${cfg.CAFE_NAME||'Cafe Yelove'}</div><h2>Scan to order</h2><div class="qr">${q.createSvgTag({cellSize:4,margin:0,scalable:true})}</div><span class="t">TABLE ${i}</span><p>Menu · Order · Pay at the counter</p></div>`;}
+    document.getElementById('grid').innerHTML=html;}
+  document.getElementById('go').onclick=draw;document.getElementById('print').onclick=()=>print();draw();
+})();
+</script>
+</body>
+</html>

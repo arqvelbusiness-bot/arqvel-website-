@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Counter · Cafe Yelove</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--cream:#f6eee3;--paper:#fffaf2;--terra:#c8503a;--terra-d:#9f3a27;--brown:#3a2117;--ink:#2a1a12;--muted:#7d6657;--line:rgba(58,33,23,.13);--green:#2f6b37;--greenbg:#e6f2e1;--amber:#9a5b0f;--amberbg:#fbeedb;--serif:'Playfair Display',Georgia,serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--cream);color:var(--ink);font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased;min-height:100vh}
+button{font:inherit;cursor:pointer;color:inherit}
+a{color:inherit}
+.logo{font-family:var(--serif);font-style:italic;font-weight:600;font-size:24px;color:var(--terra);text-decoration:none}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 16px;border-radius:999px;background:var(--ink);color:#fff;border:0;font-weight:600;font-size:13px;text-decoration:none;transition:background .2s,transform .2s}
+.btn:hover{background:var(--terra)}
+.btn.terra{background:var(--terra)}.btn.terra:hover{background:var(--terra-d)}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}.btn.ghost:hover{border-color:var(--ink);background:transparent}
+.btn.sm{padding:7px 12px;font-size:12px}
+.btn.green{background:var(--green)}
+/* login */
+#login{min-height:100vh;display:grid;place-items:center;padding:20px}
+.lcard{background:var(--paper);border-radius:28px;padding:40px 34px;width:min(380px,100%);text-align:center;border:1.5px solid var(--line);box-shadow:0 30px 60px -40px rgba(42,26,18,.5)}
+.lcard h1{font-family:var(--serif);font-weight:600;font-size:30px;margin:6px 0 4px}
+.lcard p{color:var(--muted);font-size:14px;margin-bottom:22px}
+.lcard input{width:100%;padding:14px 16px;border-radius:14px;border:1.5px solid var(--line);background:var(--cream);font:inherit;font-size:16px;margin-bottom:10px;outline:none;color:var(--ink)}
+.lcard input:focus{border-color:var(--terra)}
+.lcard .btn{width:100%;padding:14px;font-size:15px;margin-top:6px}
+.lerr{color:var(--terra-d);font-size:13px;min-height:18px;margin-top:10px}
+/* app */
+#app{display:none}
+header{position:sticky;top:0;z-index:20;background:rgba(246,238,227,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.hrow{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 24px;flex-wrap:wrap}
+.hleft{display:flex;align-items:center;gap:14px}
+.mode{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;padding:5px 10px;border-radius:99px;background:var(--amberbg);color:var(--amber)}
+.mode.live{background:var(--greenbg);color:var(--green)}
+.stats{display:flex;gap:10px;flex-wrap:wrap}
+.stat{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:8px 14px;min-width:110px}
+.stat b{display:block;font-family:var(--serif);font-size:20px;font-weight:600}
+.stat span{font-size:11px;color:var(--muted);letter-spacing:.5px}
+.hright{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.tabs{display:flex;gap:4px;padding:0 24px}
+.tab{background:none;border:0;padding:12px 16px;font-weight:600;font-size:14px;color:var(--muted);border-bottom:2px solid transparent}
+.tab.on{color:var(--ink);border-color:var(--terra)}
+.tab .n{display:inline-grid;place-items:center;min-width:20px;height:20px;padding:0 6px;border-radius:99px;background:var(--terra);color:#fff;font-size:11px;margin-left:6px}
+.tab .n:empty{display:none}
+main{padding:22px 24px 60px}
+.view{display:none}.view.on{display:block}
+/* orders */
+.board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;align-items:start}
+.col h3{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin:0 4px 12px;display:flex;justify-content:space-between}
+.col .cards{display:grid;gap:12px}
+.oc{background:var(--paper);border:1.5px solid var(--line);border-radius:20px;padding:16px;animation:in .4s both}
+@keyframes in{from{opacity:0;transform:translateY(8px)}}
+.oc.fresh{border-color:var(--terra);box-shadow:0 0 0 4px rgba(200,80,58,.15)}
+.oc .top{display:flex;justify-content:space-between;align-items:start;gap:10px}
+.oc .code{font-family:var(--serif);font-size:22px;font-weight:600}
+.oc .tbl .cn{color:var(--ink);font-weight:600}
+.oc .tbl{font-size:12px;color:var(--muted);margin-top:2px}
+.pill{font-size:11px;font-weight:700;letter-spacing:.5px;padding:5px 10px;border-radius:99px;white-space:nowrap}
+.pill.paid{background:var(--greenbg);color:var(--green)}
+.pill.unpaid{background:var(--amberbg);color:var(--amber)}
+.oc ul{list-style:none;margin:12px 0;border-top:1px solid var(--line)}
+.oc li{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid var(--line);font-size:14px}
+.oc li b{font-weight:600}
+.oc .note{font-size:13px;background:var(--amberbg);color:var(--amber);padding:8px 10px;border-radius:10px;margin-bottom:10px}
+.oc .tot{display:flex;justify-content:space-between;font-weight:700;margin-bottom:12px}
+.oc .acts{display:flex;gap:6px;flex-wrap:wrap}
+.oc .paybox span{width:100%}
+.oc .paybox{display:flex;gap:6px;align-items:center;flex-wrap:wrap;background:var(--cream);border-radius:12px;padding:8px;margin-bottom:8px;font-size:12px;color:var(--muted)}
+.oc .cancel{background:none;border:0;color:var(--muted);font-size:12px;text-decoration:underline;margin-left:auto}
+.empty{color:var(--muted);font-size:14px;padding:22px;text-align:center;border:1.5px dashed var(--line);border-radius:18px}
+.done{margin-top:26px}
+.done summary{cursor:pointer;color:var(--muted);font-size:14px;font-weight:600}
+.done .row{display:flex;justify-content:space-between;gap:12px;padding:10px 14px;background:var(--paper);border-radius:12px;margin-top:8px;font-size:14px}
+/* reservations */
+.rfilter{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.chip{border:1.5px solid var(--line);background:var(--paper);border-radius:99px;padding:8px 14px;font-size:13px;font-weight:600}
+.chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.rday{font-family:var(--serif);font-size:20px;font-weight:600;margin:20px 0 10px}
+.rc{display:grid;grid-template-columns:90px 1fr auto;gap:16px;align-items:center;background:var(--paper);border:1.5px solid var(--line);border-radius:18px;padding:14px 18px;margin-bottom:10px}
+.rc .time{font-family:var(--serif);font-size:20px;font-weight:600}
+.rc .who b{font-size:16px}
+.rc .who small{display:block;color:var(--muted);font-size:13px;margin-top:3px}
+.rc .who .note{color:var(--amber)}
+.rc .acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;align-items:center}
+.st-requested{background:var(--amberbg);color:var(--amber)}.st-confirmed{background:var(--greenbg);color:var(--green)}.st-declined{background:#f3e2de;color:var(--terra-d)}.st-seated{background:#e4e6f3;color:#3a4a8a}
+/* menu */
+.mtools{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.mtools input{flex:1;min-width:200px;padding:11px 16px;border-radius:99px;border:1.5px solid var(--line);background:var(--paper);font:inherit;outline:none}
+.mcat{font-family:var(--serif);font-size:20px;font-weight:600;margin:20px 0 8px}
+.mgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px}
+.mi{display:flex;justify-content:space-between;align-items:center;gap:12px;background:var(--paper);border:1.5px solid var(--line);border-radius:14px;padding:12px 14px}
+.mi.out{opacity:.6}
+.mi span{font-size:14px;font-weight:500}
+.mi small{display:block;color:var(--muted);font-size:12px}
+.sw{position:relative;width:46px;height:26px;border-radius:99px;background:var(--green);border:0;flex:none;transition:background .2s}
+.sw::after{content:'';position:absolute;top:3px;left:23px;width:20px;height:20px;border-radius:50%;background:#fff;transition:left .2s}
+.sw.off{background:#c9bcae}.sw.off::after{left:3px}
+/* history */
+.htools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+.htools .rfilter{margin:0}
+.hdate{font-size:12px;color:var(--muted);display:flex;gap:6px;align-items:center}
+.hdate input,.hsel,.hsearch{padding:8px 12px;border-radius:12px;border:1.5px solid var(--line);background:var(--paper);font:inherit;font-size:13px;color:var(--ink);outline:none}
+.hsearch{flex:1;min-width:180px;border-radius:99px;padding:9px 14px}
+.hsum{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:18px}
+.hsum div{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:14px 16px}
+.hsum b{display:block;font-family:var(--serif);font-size:24px;font-weight:600}
+.hsum span{font-size:12px;color:var(--muted)}
+.hgrid{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:18px;align-items:start}
+.hday{font-family:var(--serif);font-size:18px;font-weight:600;margin:16px 0 8px;display:flex;justify-content:space-between;align-items:baseline}
+.hday small{font-family:Inter,sans-serif;font-size:12px;color:var(--muted);font-weight:500}
+.hitem{background:var(--paper);border:1.5px solid var(--line);border-radius:14px;margin-bottom:6px}
+.hitem summary{list-style:none;display:grid;grid-template-columns:70px 100px 130px 1fr auto auto;gap:12px;align-items:center;padding:11px 14px;cursor:pointer;font-size:14px}
+.hitem summary::-webkit-details-marker{display:none}
+.hitem summary .c{font-family:var(--serif);font-weight:600}
+.hitem summary .it{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hitem .body{padding:0 14px 12px;font-size:13px}
+.hitem .body div{display:flex;justify-content:space-between;padding:5px 0;border-top:1px solid var(--line)}
+.htop{background:var(--paper);border:1.5px solid var(--line);border-radius:18px;padding:16px;position:sticky;top:150px}
+.htop h4{font-family:var(--serif);font-size:18px;font-weight:600;margin-bottom:10px}
+.htop ol{padding-left:18px;font-size:13px;display:grid;gap:7px}
+.htop li span{float:right;color:var(--muted)}
+@media(max-width:980px){.hsum{grid-template-columns:repeat(2,1fr)}.hgrid{grid-template-columns:1fr}.htop{position:static}.hitem summary{grid-template-columns:60px 1fr auto;}.hitem summary .tb,.hitem summary .it{display:none}}
+#toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,20px);background:var(--ink);color:#fff;padding:12px 20px;border-radius:14px;font-size:14px;z-index:99;opacity:0;transition:.3s;pointer-events:none}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+@media(max-width:980px){.board{grid-template-columns:1fr}.rc{grid-template-columns:1fr}.rc .acts{justify-content:flex-start}}
+</style>
+</head>
+<body>
+<section id="login">
+  <div class="lcard">
+    <a class="logo" href="index.html">Cafe Yelove</a>
+    <h1>Counter</h1>
+    <p id="lHint">Staff sign-in</p>
+    <form id="lform">
+      <input id="lEmail" type="email" placeholder="Staff email" autocomplete="username">
+      <input id="lPass" type="password" placeholder="Password" autocomplete="current-password" required>
+      <button class="btn terra">Sign in</button>
+    </form>
+    <div class="lerr" id="lErr"></div>
+  </div>
+</section>
+
+<div id="app">
+  <header>
+    <div class="hrow">
+      <div class="hleft"><a class="logo" href="index.html" target="_blank">Cafe Yelove</a><span class="mode" id="mode"></span></div>
+      <div class="stats">
+        <div class="stat"><b id="sOrders">0</b><span>Orders today</span></div>
+        <div class="stat"><b id="sUnpaid">₹0</b><span>Awaiting payment</span></div>
+        <div class="stat"><b id="sPaid">₹0</b><span>Collected today</span></div>
+        <div class="stat"><b id="sRes">0</b><span>Bookings today</span></div>
+      </div>
+      <div class="hright">
+        <button class="btn ghost sm" id="soundBtn">Sound on</button>
+        <a class="btn ghost sm" href="qr-cards.html" target="_blank">Table QR cards</a>
+        <button class="btn ghost sm" id="resetBtn" hidden>Reset demo</button>
+        <button class="btn sm" id="outBtn">Sign out</button>
+      </div>
+    </div>
+    <nav class="tabs">
+      <button class="tab on" data-v="orders">Orders<span class="n" id="nOrders"></span></button>
+      <button class="tab" data-v="res">Reservations<span class="n" id="nRes"></span></button>
+      <button class="tab" data-v="menu">Menu<span class="n" id="nMenu"></span></button>
+      <button class="tab" data-v="hist">Order history</button>
+    </nav>
+  </header>
+  <main>
+    <section class="view on" id="v-orders">
+      <div class="board">
+        <div class="col"><h3>New <span id="cNew"></span></h3><div class="cards" id="colNew"></div></div>
+        <div class="col"><h3>Preparing <span id="cPrep"></span></h3><div class="cards" id="colPrep"></div></div>
+        <div class="col"><h3>Served · awaiting payment <span id="cServed"></span></h3><div class="cards" id="colServed"></div></div>
+      </div>
+      <details class="done" id="doneBox"><summary id="doneSum">Completed today</summary><div id="doneList"></div></details>
+    </section>
+    <section class="view" id="v-res">
+      <div class="rfilter" id="rfilter"><button class="chip on" data-f="upcoming">Upcoming</button><button class="chip" data-f="requested">Needs reply</button><button class="chip" data-f="all">All</button></div>
+      <div id="resList"></div>
+    </section>
+    <section class="view" id="v-hist">
+      <div class="htools">
+        <div class="rfilter" id="hRange"><button class="chip on" data-r="today">Today</button><button class="chip" data-r="yesterday">Yesterday</button><button class="chip" data-r="7">Last 7 days</button><button class="chip" data-r="30">Last 30 days</button><button class="chip" data-r="month">This month</button></div>
+        <label class="hdate">From <input type="date" id="hFrom"></label><label class="hdate">To <input type="date" id="hTo"></label>
+        <input id="hq" class="hsearch" placeholder="Search order no., name, table or dish">
+        <select id="hStatus" class="hsel"><option value="all">All orders</option><option value="paid">Paid</option><option value="unpaid">Not paid</option><option value="cancelled">Cancelled</option></select>
+        <button class="btn sm" id="hCsv">Export CSV</button>
+      </div>
+      <div class="hsum" id="hSum"></div>
+      <div class="hgrid"><div id="hList"></div><aside class="htop" id="hTop"></aside></div>
+    </section>
+    <section class="view" id="v-menu">
+      <div class="mtools"><input id="mq" placeholder="Search dishes…"><span style="color:var(--muted);font-size:13px;align-self:center">Switch off anything that runs out. It shows as sold out on the website instantly.</span></div>
+      <div id="menuList"></div>
+    </section>
+  </main>
+</div>
+<div id="toast"></div>
+
+<script src="js/vendor/supabase.js"></script>
+<script src="js/config.js"></script>
+<script src="js/menu.js"></script>
+<script src="js/store.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>

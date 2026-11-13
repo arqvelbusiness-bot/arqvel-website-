@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Cafe Yelove</title>
+<script>/* old table QR links → ordering app */if(/[?&]table=/.test(location.search))location.replace("order.html"+location.search);</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<meta name="description" content="Cafe Yelove, Anna Nagar, Chennai. Pizzas, burgers, pasta, coffee and shakes. Order from your table or reserve a table online.">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--serif:'Playfair Display',Georgia,serif;--cream:#f6eee3;--paper:#fffaf2;--terra:#c8503a;--terra-d:#9f3a27;--brown:#3a2117;--ink:#2a1a12;--muted:#7d6657;--line:rgba(58,33,23,.14);--veg:#2e8b3d;--nv:#b3261e;--glow:#f2a9b9}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--cream);color:var(--ink);font-family:Inter,system-ui,sans-serif;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+button{font:inherit;cursor:pointer}
+a{color:inherit}
+.serif{font-family:'Playfair Display',serif}
+
+/* loader */
+#loader{position:fixed;inset:0;z-index:200;background:var(--cream);display:grid;place-items:center;transition:opacity .7s,visibility .7s}
+#loader.done{opacity:0;visibility:hidden}
+#loader .lg{font-family:'Playfair Display';font-style:italic;font-weight:700;font-size:48px;color:var(--terra)}
+#loader .bar{width:160px;height:2px;background:var(--line);margin:18px auto 0;overflow:hidden;border-radius:2px}
+#loader .bar i{display:block;height:100%;width:40%;background:var(--terra);animation:ld 1s ease-in-out infinite}
+@keyframes ld{0%{transform:translateX(-100%)}100%{transform:translateX(260%)}}
+
+/* nav */
+nav{position:fixed;top:0;left:0;right:0;z-index:60;display:flex;align-items:center;justify-content:space-between;padding:16px clamp(16px,4vw,48px);transition:background .3s,box-shadow .3s,padding .3s}
+nav.scrolled{background:rgba(246,238,227,.86);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 1px 0 var(--line);padding-top:10px;padding-bottom:10px}
+.logo{font-family:'Playfair Display';font-style:italic;font-weight:700;font-size:28px;color:var(--terra);text-decoration:none}
+.navlinks{display:flex;gap:28px;align-items:center}
+.navlinks a{text-decoration:none;font-weight:500;font-size:15px;position:relative}
+.navlinks a:not(.btn)::after{content:'';position:absolute;left:0;bottom:-4px;height:2px;width:0;background:var(--terra);transition:width .25s}
+.navlinks a:not(.btn):hover::after{width:100%}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:14px 24px;border-radius:999px;background:var(--terra);color:#fff!important;font-weight:600;border:0;text-decoration:none;transition:transform .2s,background .2s,box-shadow .2s;box-shadow:0 8px 24px -10px rgba(200,80,58,.7)}
+.btn:hover{transform:translateY(-2px);background:var(--terra-d)}
+.btn.ghost{background:transparent;color:var(--ink)!important;border:1.5px solid var(--ink);box-shadow:none}
+.btn.ghost:hover{background:var(--ink);color:var(--paper)!important}
+.btn.sm{padding:10px 18px;font-size:14px}
+
+/* hero */
+#hero{position:relative;height:100vh;min-height:640px;overflow:hidden;background:radial-gradient(ellipse at 72% 55%,#fff6ea 0%,#f6eee3 45%,#efdfcc 100%)}
+#heroCanvas{position:absolute;inset:0;width:100%;height:100%;cursor:grab;touch-action:pan-y}
+#heroCanvas:active{cursor:grabbing}
+.squig{position:absolute;pointer-events:none;stroke:var(--brown);fill:none;stroke-width:2;opacity:.55}
+.hero-copy{position:absolute;z-index:2;left:clamp(16px,6vw,88px);top:50%;transform:translateY(-50%);max-width:560px;pointer-events:none}
+.eyebrow{display:inline-flex;gap:10px;align-items:center;font-size:13px;letter-spacing:3px;text-transform:uppercase;color:var(--terra);font-weight:600}
+.eyebrow::before{content:'';width:28px;height:1.5px;background:var(--terra)}
+h1{font-family:var(--serif);font-weight:600;font-size:clamp(48px,7.4vw,108px);line-height:.95;letter-spacing:-2px;margin:18px 0 22px}
+h1 em{font-style:italic;font-weight:500;color:var(--terra)}
+.hero-copy p{font-size:18px;line-height:1.6;color:var(--muted);max-width:440px}
+.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:30px;pointer-events:auto}
+.stats{display:flex;gap:26px;margin-top:38px;flex-wrap:wrap}
+.stats div{font-size:13px;color:var(--muted)}
+.stats b{display:block;font-family:'Playfair Display';font-size:26px;color:var(--ink)}
+.hint{position:absolute;right:clamp(16px,4vw,48px);bottom:28px;z-index:2;font-size:13px;color:var(--muted);display:flex;gap:8px;align-items:center;pointer-events:none}
+.hint i{width:26px;height:26px;border:1.5px solid var(--muted);border-radius:50%;display:grid;place-items:center;font-style:normal;animation:sp 3s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+#tip{position:fixed;z-index:70;pointer-events:none;background:var(--ink);color:var(--paper);padding:8px 14px;border-radius:999px;font-size:13px;font-weight:600;opacity:0;transform:translate(-50%,-140%) scale(.9);transition:opacity .15s,transform .15s;white-space:nowrap}
+#tip.on{opacity:1;transform:translate(-50%,-140%) scale(1)}
+
+.marquee{background:var(--brown);color:var(--paper);overflow:hidden;white-space:nowrap;padding:18px 0;font-family:var(--serif);font-style:italic;font-size:26px}
+.marquee div{display:inline-block;animation:mq 32s linear infinite}
+.marquee span{margin:0 24px;color:var(--terra);font-style:normal;font-size:14px;vertical-align:middle}
+@keyframes mq{to{transform:translateX(-50%)}}
+
+/* sections */
+section{position:relative}
+.wrap{max-width:1280px;margin:0 auto;padding:0 clamp(16px,4vw,48px)}
+.sec-head{display:flex;justify-content:space-between;align-items:end;gap:20px;margin-bottom:36px;flex-wrap:wrap}
+h2{font-family:var(--serif);font-weight:600;font-size:clamp(40px,5.5vw,72px);line-height:1;letter-spacing:-1.5px}
+h2 em{font-style:italic;font-weight:500;color:var(--terra)}
+.sec-head p{max-width:380px;color:var(--muted);line-height:1.6}
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .8s,transform .8s}
+.reveal.in{opacity:1;transform:none}
+
+/* explorer */
+#menu{padding:110px 0 100px}
+.explorer{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.08fr);gap:40px}
+.explorer>*{min-width:0}
+.stage{position:sticky;top:84px;height:calc(100vh - 110px);max-height:700px;min-height:460px;border-radius:32px;background:radial-gradient(circle at 50% 38%,#fffaf2 0%,#f3e2cf 60%,#e9d2ba 100%);overflow:hidden;border:1.5px solid var(--line)}
+.stage canvas{width:100%;height:100%;display:block;cursor:grab;touch-action:pan-y}
+.stage-top{position:absolute;top:22px;left:26px;right:26px;display:flex;justify-content:space-between;align-items:start;pointer-events:none}
+.stage-num{font-family:'Playfair Display';font-style:italic;font-size:15px;color:var(--terra)}
+.stage-cat{font-family:var(--serif);font-weight:600;font-size:34px;line-height:1}
+.chip3d{font-size:11px;letter-spacing:2px;text-transform:uppercase;background:var(--ink);color:var(--paper);padding:6px 12px;border-radius:99px}
+.stage-bot{position:absolute;left:26px;right:26px;bottom:22px;display:flex;justify-content:space-between;align-items:end;gap:12px;pointer-events:none}
+.stage-dish{font-family:'Playfair Display';font-size:24px;font-weight:700}
+.stage-price{color:var(--terra);font-weight:700;font-size:18px;margin-top:4px}
+.stage-hint{font-size:12px;color:var(--muted);text-align:right}
+.tabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{padding:11px 18px;border-radius:999px;border:1.5px solid var(--line);background:var(--paper);white-space:nowrap;font-weight:600;font-size:14px;transition:all .2s;color:var(--ink)}
+.tab:hover{border-color:var(--terra)}
+.tab.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.filters{display:flex;gap:10px;margin:14px 0 18px;flex-wrap:wrap;align-items:center}
+.seg{display:flex;background:var(--paper);border:1.5px solid var(--line);border-radius:999px;padding:4px}
+.seg button{border:0;background:none;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:600;color:var(--muted);display:flex;gap:6px;align-items:center}
+.seg button.on{background:var(--terra);color:#fff}
+.search{flex:1;min-width:170px;padding:12px 18px;border-radius:999px;border:1.5px solid var(--line);background:var(--paper);font:inherit;font-size:14px;outline:none;color:var(--ink)}
+.search:focus{border-color:var(--terra)}
+.cat-note{font-size:13px;color:var(--terra);margin-bottom:14px;font-weight:500}
+.items{display:grid;gap:12px}
+.item{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:start;padding:18px 18px;border-radius:20px;background:var(--paper);border:1.5px solid transparent;cursor:pointer;transition:border-color .2s,transform .2s,box-shadow .2s;animation:pop .45s both}
+@keyframes pop{from{opacity:0;transform:translateY(12px)}}
+.item:hover{border-color:rgba(200,80,58,.4);transform:translateX(4px)}
+.item.active{border-color:var(--terra);box-shadow:0 14px 30px -18px rgba(200,80,58,.6)}
+.vd{width:16px;height:16px;border:1.6px solid var(--veg);display:grid;place-items:center;border-radius:3px;margin-top:5px}
+.vd::after{content:'';width:7px;height:7px;border-radius:50%;background:var(--veg)}
+.vd.nv{border-color:var(--nv)}.vd.nv::after{background:var(--nv)}
+.vd.mx{border-color:#c98a1a}.vd.mx::after{background:#c98a1a}
+.item h4{font-family:'Playfair Display';font-size:19px;font-weight:700;line-height:1.25}
+.item p{font-size:13.5px;color:var(--muted);margin-top:5px;line-height:1.5}
+.tag{display:inline-block;font-family:Inter;font-size:10.5px;text-transform:uppercase;letter-spacing:1px;color:var(--terra);background:rgba(200,80,58,.1);padding:3px 8px;border-radius:99px;margin-left:8px;vertical-align:middle;font-weight:700}
+.pr{text-align:right;display:flex;flex-direction:column;align-items:end;gap:10px}
+.pr b{color:var(--terra);font-size:16px;white-space:nowrap}
+.add{width:38px;height:38px;border-radius:50%;background:var(--ink);color:#fff;border:0;font-size:20px;line-height:1;transition:transform .2s,background .2s}
+.add:hover{background:var(--terra);transform:rotate(90deg)}
+.opts{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.opt{font-size:12px;padding:5px 11px;border-radius:999px;border:1px solid var(--line);background:none;color:var(--ink)}
+.opt.on{background:var(--terra);color:#fff;border-color:var(--terra)}
+.empty{padding:30px;text-align:center;color:var(--muted)}
+.gst{font-size:12px;color:var(--muted);margin-top:18px}
+
+/* drink lab */
+#lab{background:#2a1810;color:var(--paper);padding:110px 0;overflow:hidden}
+#lab::before{content:'';position:absolute;width:760px;height:760px;left:12%;top:50%;transform:translateY(-50%);border-radius:50%;background:radial-gradient(circle,var(--glow) 0%,transparent 65%);opacity:.35;transition:background 1s}
+#lab h2 em{color:var(--glow);transition:color .8s}
+#lab .sec-head p{color:rgba(255,250,242,.65)}
+.lab-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;position:relative}
+.lab-stage{height:560px;position:relative}
+.lab-stage canvas{width:100%;height:100%;display:block;cursor:grab;touch-action:pan-y}
+.dname{font-family:var(--serif);font-weight:500;font-style:italic;font-size:clamp(56px,7vw,96px);line-height:.95}
+.dprice{font-family:'Playfair Display';font-style:italic;font-size:28px;color:var(--glow);margin:6px 0 16px;transition:color .8s}
+.dnote{color:rgba(255,250,242,.75);line-height:1.6;max-width:420px;min-height:52px}
+.swatches{display:flex;gap:12px;margin:30px 0;flex-wrap:wrap}
+.sw{display:flex;align-items:center;gap:10px;background:rgba(255,250,242,.07);border:1.5px solid rgba(255,250,242,.15);color:var(--paper);padding:8px 16px 8px 8px;border-radius:999px;font-size:14px;font-weight:600;transition:all .2s}
+.sw i{width:28px;height:28px;border-radius:50%;display:block}
+.sw:hover{border-color:rgba(255,250,242,.5)}
+.sw.on{background:var(--paper);color:var(--ink)}
+
+/* mood */
+#mood{padding:110px 0}
+.moods{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:28px}
+.mood{padding:14px 22px;border-radius:999px;border:1.5px solid var(--ink);background:none;font-weight:600;font-size:15px;transition:all .2s;color:var(--ink)}
+.mood:hover{transform:translateY(-2px)}
+.mood.on{background:var(--ink);color:var(--paper)}
+.picks{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px}
+.pick{background:var(--paper);border-radius:24px;padding:22px;display:flex;flex-direction:column;gap:10px;animation:pop .5s both;border:1.5px solid var(--line)}
+.pick .cat{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--terra);font-weight:700}
+.pick h4{font-family:'Playfair Display';font-size:22px;line-height:1.2}
+.pick .row{display:flex;justify-content:space-between;align-items:center;margin-top:auto;padding-top:10px}
+.pick .row b{color:var(--terra)}
+.linkbtn{background:none;border:0;color:var(--ink);text-decoration:underline;font-size:13px;font-weight:600}
+.mood-total{margin-top:22px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;color:var(--muted)}
+
+/* love */
+#love{padding:100px 0;background:var(--paper)}
+.love-grid{display:grid;grid-template-columns:auto 1fr;gap:60px;align-items:center}
+.big-r{font-family:var(--serif);font-weight:600;font-style:italic;font-size:clamp(100px,14vw,180px);line-height:.85;color:var(--terra)}
+.stars{font-size:26px;color:#e7a23a;letter-spacing:4px;margin-top:8px}
+.love-grid small{color:var(--muted);display:block;margin-top:6px}
+.loves{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+.loves span{padding:12px 18px;border-radius:999px;background:var(--cream);font-weight:600;font-size:15px}
+.badge{display:inline-flex;gap:8px;align-items:center;margin-top:24px;padding:10px 16px;border-radius:12px;border:1.5px dashed var(--terra);color:var(--terra);font-weight:600;font-size:14px}
+
+/* visit */
+#visit{padding:110px 0}
+.visit-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.card{background:var(--paper);border-radius:28px;padding:32px;border:1.5px solid var(--line)}
+.card h3{font-family:'Playfair Display';font-size:28px;margin-bottom:18px}
+.info{display:grid;gap:18px}
+.info div{display:grid;grid-template-columns:28px 1fr;gap:12px;line-height:1.5}
+.info span{font-size:20px}
+.info small{color:var(--muted);display:block}
+.form{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form label{display:grid;gap:6px;font-size:13px;font-weight:600;color:var(--muted)}
+.form input,.form select,.form textarea{padding:13px 14px;border-radius:14px;border:1.5px solid var(--line);background:var(--cream);font:inherit;font-size:15px;color:var(--ink);outline:none}
+.form input:focus,.form select:focus,.form textarea:focus{border-color:var(--terra)}
+.form .full{grid-column:1/-1}
+.guests{display:flex;gap:6px}
+.guests button{flex:1;padding:12px 0;border-radius:12px;border:1.5px solid var(--line);background:var(--cream);font-weight:600;color:var(--ink)}
+.guests button.on{background:var(--terra);color:#fff;border-color:var(--terra)}
+
+footer{background:var(--ink);color:rgba(255,250,242,.7);padding:60px 0 40px}
+footer .logo{font-size:44px}
+.foot{display:flex;justify-content:space-between;gap:30px;flex-wrap:wrap;align-items:end}
+.proto{display:inline-block;margin-top:14px;font-size:12px;letter-spacing:1px;padding:6px 12px;border-radius:99px;border:1px solid rgba(255,250,242,.25)}
+
+/* tray */
+#trayBtn{position:fixed;right:20px;bottom:20px;z-index:80;display:flex;align-items:center;gap:12px;background:var(--ink);color:var(--paper);border:0;padding:12px 20px 12px 12px;border-radius:999px;box-shadow:0 18px 40px -14px rgba(0,0,0,.5);transform:translateY(120px);transition:transform .4s cubic-bezier(.3,1.4,.5,1)}
+#trayBtn.show{transform:none}
+#trayBtn .cnt{width:36px;height:36px;border-radius:50%;background:var(--terra);display:grid;place-items:center;font-weight:700}
+#trayBtn.bump .cnt{animation:bump .4s}
+@keyframes bump{50%{transform:scale(1.35)}}
+#trayBtn small{display:block;font-size:11px;opacity:.7;text-align:left}
+#tray{position:fixed;top:0;right:0;bottom:0;width:min(420px,100%);background:var(--paper);z-index:90;transform:translateX(105%);transition:transform .45s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column;box-shadow:-20px 0 60px -20px rgba(0,0,0,.3)}
+#tray.open{transform:none}
+#scrim{position:fixed;inset:0;background:rgba(42,26,18,.4);z-index:85;opacity:0;visibility:hidden;transition:.3s}
+#scrim.on{opacity:1;visibility:visible}
+.tray-h{padding:24px;display:flex;justify-content:space-between;align-items:center;border-bottom:1.5px solid var(--line)}
+.tray-h h3{font-family:'Playfair Display';font-size:26px}
+.x{width:40px;height:40px;border-radius:50%;border:1.5px solid var(--line);background:none;font-size:18px;color:var(--ink)}
+.tray-list{flex:1;overflow:auto;padding:12px 24px}
+.tl{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--line)}
+.tl h5{font-family:'Playfair Display';font-size:17px}
+.tl small{color:var(--terra);font-weight:600}
+.qty{display:flex;align-items:center;gap:10px}
+.qty button{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--line);background:none;font-size:16px;color:var(--ink)}
+.tray-f{padding:24px;border-top:1.5px solid var(--line);display:grid;gap:8px}
+.tray-f .r{display:flex;justify-content:space-between;color:var(--muted);font-size:14px}
+.tray-f .r.t{color:var(--ink);font-weight:700;font-size:18px;margin-top:6px}
+.tray-f .btn{justify-content:center;margin-top:10px}
+
+#toast{position:fixed;left:50%;bottom:90px;transform:translate(-50%,20px);background:var(--ink);color:var(--paper);padding:12px 20px;border-radius:14px;font-size:14px;z-index:120;opacity:0;transition:.3s;pointer-events:none;max-width:90vw;text-align:center}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+
+/* table ordering */
+.tpill{display:inline-flex;align-items:center;gap:8px;background:var(--ink);color:var(--paper);padding:9px 16px;border-radius:999px;font-size:13px;font-weight:600}
+.tpill i{width:8px;height:8px;border-radius:50%;background:#7fd18b;box-shadow:0 0 0 4px rgba(127,209,139,.25)}
+.item.out{opacity:.5}.item.out .add{background:var(--line);pointer-events:none}
+.soldtag{display:inline-block;font-family:Inter;font-size:10.5px;text-transform:uppercase;letter-spacing:1px;color:#fff;background:var(--muted);padding:3px 8px;border-radius:99px;margin-left:8px;vertical-align:middle;font-weight:700}
+.tray-note{width:100%;margin-top:4px;padding:12px 14px;border-radius:14px;border:1.5px solid var(--line);background:var(--cream);font:inherit;font-size:14px;resize:none;color:var(--ink);outline:none}
+.who-row{display:grid;grid-template-columns:1fr 110px;gap:10px;margin-top:6px}
+.who-row label{display:grid;gap:5px;font-size:12px;font-weight:600;color:var(--muted)}
+.who-row input,.who-row select{padding:12px 14px;border-radius:14px;border:1.5px solid var(--line);background:var(--cream);font:inherit;font-size:15px;color:var(--ink);outline:none;width:100%}
+.who-row input:focus,.who-row select:focus{border-color:var(--terra)}
+.who-row .bad{border-color:var(--terra);background:#fbe6e1}
+.tray-info{font-size:13px;color:var(--muted);line-height:1.5;background:var(--cream);border-radius:14px;padding:12px 14px}
+.btn[disabled]{opacity:.5;pointer-events:none}
+.form textarea{resize:none;min-height:70px}
+.fstatus{grid-column:1/-1;font-size:14px;line-height:1.5;border-radius:14px;padding:12px 14px;display:none}
+.fstatus.ok{display:block;background:#e9f3e4;color:#2f6b37}.fstatus.err{display:block;background:#fbe6e1;color:#9f3a27}
+#confirm{position:fixed;inset:0;z-index:110;display:grid;place-items:center;padding:16px;background:rgba(42,26,18,.55);opacity:0;visibility:hidden;transition:.3s}
+#confirm.on{opacity:1;visibility:visible}
+.sheet{background:var(--paper);border-radius:28px;width:min(440px,100%);max-height:92vh;overflow:auto;padding:30px;text-align:center;transform:translateY(20px);transition:transform .4s cubic-bezier(.2,.8,.2,1)}
+#confirm.on .sheet{transform:none}
+.tick{width:58px;height:58px;border-radius:50%;background:#e9f3e4;color:#2f6b37;display:grid;place-items:center;font-size:28px;margin:0 auto 12px}
+.sheet h3{font-family:var(--serif);font-size:28px;font-weight:600}
+.code{display:inline-block;font-family:var(--serif);font-size:34px;letter-spacing:2px;color:var(--terra);margin:8px 0 2px}
+.sheet .muted{color:var(--muted);font-size:14px;line-height:1.55}
+.sheet .lines{text-align:left;margin:18px 0;border-top:1px solid var(--line)}
+.sheet .lines div{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
+.sheet .lines div.t{font-weight:700;font-size:17px;border-bottom:0}
+.upi{background:var(--cream);border-radius:20px;padding:18px;margin:6px 0 18px}
+.upi .qr{width:190px;height:190px;margin:10px auto;background:#fff;border-radius:14px;padding:10px;display:grid;place-items:center}
+.upi .qr svg{width:100%;height:100%}
+.upi .ph{border:2px dashed var(--line);color:var(--muted);font-size:13px;padding:14px;line-height:1.4}
+/* website = browse & reserve only; ordering lives in order.html */
+.add,#trayBtn,#tray,#scrim,#dAdd,#addAll,.tpill,.linkbtn+.add{display:none!important}
+.dinein{margin-top:14px;padding:14px 16px;border-radius:16px;background:var(--paper);border:1.5px dashed var(--terra);color:var(--muted);font-size:14px;line-height:1.5}
+.dinein b{color:var(--terra)}
+@media(max-width:900px){
+ .navlinks a:not(.btn){display:none}
+ .hero-copy{top:96px;transform:none;left:16px;right:16px;text-align:center;max-width:none}
+ .hero-copy p{margin:0 auto;font-size:16px}
+ .actions,.stats{justify-content:center}
+ .stats{gap:18px;margin-top:22px}
+ .stats b{font-size:20px}
+ h1{margin:12px 0 14px}
+ .hint{left:0;right:0;justify-content:center}
+ .explorer{grid-template-columns:minmax(0,1fr);gap:20px}
+ .search{min-width:0;width:100%}
+ .stage{position:sticky;top:60px;height:270px;min-height:0;z-index:5;border-radius:24px}
+ .stage-cat{font-size:24px}.stage-dish{font-size:18px}.stage-hint{display:none}
+ .lab-grid,.visit-grid,.love-grid{grid-template-columns:1fr}
+ .lab-stage{height:400px}
+ .love-grid{gap:20px}
+}
+@media(max-width:520px){.form{grid-template-columns:1fr}.logo{font-size:22px;white-space:nowrap}.navlinks{gap:8px}.navlinks .btn{padding:8px 12px;font-size:12px;white-space:nowrap}.tpill{padding:7px 11px;font-size:12px;white-space:nowrap}.stats{position:relative;z-index:3}}
+</style>
+</head>
+<body>
+
+<div id="loader"><div style="text-align:center"><div class="lg">Cafe Yelove</div><div class="bar"><i></i></div></div></div>
+
+<nav id="nav">
+  <a href="#hero" class="logo">Cafe Yelove</a>
+  <div class="navlinks">
+    <span class="tpill" id="tablePill" hidden><i></i><span id="tablePillTxt"></span></span>
+    <a href="#menu">Menu</a><a href="#lab">Drinks</a><a href="#mood">Moods</a><a href="#visit">Visit</a>
+    <a href="#visit" class="btn sm">Reserve a table</a>
+  </div>
+</nav>
+
+<section id="hero">
+  <canvas id="heroCanvas"></canvas>
+  <svg class="squig" style="left:-20px;top:70px;width:220px" viewBox="0 0 220 160"><path d="M0 20 C60 10 70 80 40 110 C10 140 70 160 110 130 C150 100 120 40 170 40 C200 40 210 70 220 60"/></svg>
+  <svg class="squig" style="right:-10px;top:60px;width:200px" viewBox="0 0 200 140"><path d="M200 10 C150 0 130 60 160 90 C190 120 140 140 100 120 C60 100 90 40 40 50 C10 56 0 80 0 80"/></svg>
+  <div class="hero-copy">
+    <span class="eyebrow">Anna Nagar · Chennai</span>
+    <h1>Cozy bites,<br><em>pretty</em> sips.</h1>
+    <p id="heroLead">Oven-hot pizzas, stacked burgers, twirl-worthy pasta and drinks you'll photograph before you sip.</p>
+    <div class="actions">
+      <a href="#menu" class="btn" id="heroCta">Explore the 3D menu →</a>
+      <a href="#visit" class="btn ghost">Reserve a table</a>
+    </div>
+    <div class="stats">
+      <div><b>4.4★</b>682 Google reviews</div>
+      <div><b>₹200–1.2k</b>per person</div>
+      <div><b>12 PM</b>doors open</div>
+    </div>
+  </div>
+  <div class="hint"><i>↻</i>Drag to spin · tap a dish</div>
+</section>
+<div id="tip"></div>
+
+<div class="marquee"><div>
+PIZZA<span>✦</span>SMASH BURGERS<span>✦</span>PINK LADY<span>✦</span>BEEF CHIMICHURRI<span>✦</span>OCEAN LATTE<span>✦</span>MAC &amp; CHEESE<span>✦</span>BISCOFF SHAKE<span>✦</span>CHICKEN WINGS<span>✦</span>
+PIZZA<span>✦</span>SMASH BURGERS<span>✦</span>PINK LADY<span>✦</span>BEEF CHIMICHURRI<span>✦</span>OCEAN LATTE<span>✦</span>MAC &amp; CHEESE<span>✦</span>BISCOFF SHAKE<span>✦</span>CHICKEN WINGS<span>✦</span>
+</div></div>
+
+<section id="menu">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <h2>The menu,<br><em>in 3D.</em></h2>
+      <p id="menuLead">Tap any dish to see it on the plate and drag to turn it around. Dining in? Scan the QR on your table to order.</p>
+    </div>
+    <div class="explorer">
+      <div class="stage reveal">
+        <canvas id="exCanvas"></canvas>
+        <div class="stage-top">
+          <div><div class="stage-num" id="stNum">05 — From the Oven</div><div class="stage-cat" id="stCat">Pizza</div></div>
+          <span class="chip3d">3D view</span>
+        </div>
+        <div class="stage-bot">
+          <div><div class="stage-dish" id="stDish">Fiery Chicken Pepperoni Pizza</div><div class="stage-price" id="stPrice">₹519</div></div>
+          <div class="stage-hint">Drag to rotate<br>Tap dishes to switch</div>
+        </div>
+      </div>
+      <div>
+        <div class="tabs" id="tabs"></div>
+        <div class="filters">
+          <div class="seg" id="vf">
+            <button data-v="all" class="on">All</button>
+            <button data-v="veg"><span class="vd" style="margin:0;width:12px;height:12px"></span>Veg</button>
+            <button data-v="nv"><span class="vd nv" style="margin:0;width:12px;height:12px"></span>Non-veg</button>
+          </div>
+          <input class="search" id="q" placeholder="Search the whole menu…">
+        </div>
+        <div class="cat-note" id="catNote"></div>
+        <div class="items" id="items"></div>
+        <div class="gst">Prices exclusive of 5% GST. 5% optional service charge for dine-in.</div>
+        <div class="dinein">Dining in? <b>Scan the QR on your table</b> to order straight to the kitchen and pay at the counter.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="lab">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <h2>Pinterest-worthy<br><em>sips.</em></h2>
+      <p>Pick a drink and watch it pour. Layers, colour and all — exactly how it lands on your table.</p>
+    </div>
+    <div class="lab-grid">
+      <div class="lab-stage"><canvas id="labCanvas"></canvas></div>
+      <div class="reveal">
+        <div class="dname" id="dName">Pink Lady</div>
+        <div class="dprice" id="dPrice">₹389</div>
+        <p class="dnote" id="dNote"></p>
+        <div class="swatches" id="swatches"></div>
+        <button class="btn" id="dAdd">Add to my order +</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="mood">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <h2>What's the<br><em>mood?</em></h2>
+      <p>Not sure what to order? Pick a vibe and we'll set the table for you.</p>
+    </div>
+    <div class="moods" id="moods"></div>
+    <div class="picks" id="picks"></div>
+    <div class="mood-total" id="moodTotal"></div>
+  </div>
+</section>
+
+<section id="love">
+  <div class="wrap love-grid reveal">
+    <div>
+      <div class="big-r">4.4</div>
+      <div class="stars">★★★★★</div>
+      <small>682 reviews on Google</small>
+    </div>
+    <div>
+      <h2 style="font-size:clamp(34px,4vw,52px)">Why Anna Nagar <em>keeps coming back</em></h2>
+      <div class="loves">
+        <span>Beef burgers</span><span>Pizzas</span><span>Mac &amp; cheese</span><span>Beef chimichurri</span><span>A long drinks list</span><span>Cozy, aesthetic space</span><span>Friendly staff</span>
+      </div>
+      <div class="badge">A women-owned café</div>
+    </div>
+  </div>
+</section>
+
+<section id="visit">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <h2>Come say<br><em>hello.</em></h2>
+      <p>Dine-in, takeaway or delivery — we're in AE Block, Anna Nagar.</p>
+    </div>
+    <div class="visit-grid">
+      <div class="card reveal">
+        <h3>Find us</h3>
+        <div class="info">
+          <div><span>📍</span><p>AE107, 1st Street, AE Block, Anna Nagar, Chennai 600040<small>Plus code 36M5+H5</small></p></div>
+          <div><span>🕛</span><p>Opens 12 PM<small>Hours may change on festival days</small></p></div>
+          <div><span>📞</span><p><a href="tel:+917010654931">070106 54931</a><small>Call for large groups &amp; events</small></p></div>
+          <div><span>🛵</span><p>Dine-in · Takeaway · Delivery<small>₹200–1,200 per person</small></p></div>
+        </div>
+        <div class="actions" style="margin-top:26px">
+          <a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Cafe+Yelove+Anna+Nagar+Chennai">Get directions</a>
+          <a class="btn ghost" href="tel:+917010654931">Call us</a>
+        </div>
+      </div>
+      <div class="card reveal">
+        <h3>Reserve a table</h3>
+        <form class="form" id="resv" novalidate>
+          <label>Name<input name="name" required maxlength="80" placeholder="Your name" autocomplete="name"></label>
+          <label>Phone<input name="phone" type="tel" required inputmode="tel" maxlength="14" placeholder="10-digit mobile" autocomplete="tel"></label>
+          <label>Date<input type="date" name="date" id="rDate" required></label>
+          <label>Time<select name="time"><option>12:30 PM</option><option>1:30 PM</option><option>3:00 PM</option><option>4:30 PM</option><option>6:00 PM</option><option>7:00 PM</option><option>8:00 PM</option><option>9:00 PM</option></select></label>
+          <label class="full">Guests<div class="guests" id="guests"><button type="button">1</button><button type="button" class="on">2</button><button type="button">3</button><button type="button">4</button><button type="button">5</button><button type="button">6+</button></div></label>
+          <label class="full">Note (optional)<textarea name="note" maxlength="300" placeholder="Birthday, high chair, window seat…"></textarea></label>
+          <div class="fstatus" id="rStatus"></div>
+          <button class="btn full" id="rBtn" style="justify-content:center;margin-top:4px">Request booking</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot">
+    <div>
+      <div class="logo">Cafe Yelove</div>
+      <p style="margin-top:8px">AE Block, Anna Nagar, Chennai · 070106 54931</p>
+    </div>
+    <div style="text-align:right">
+      <p>Prices exclusive of 5% GST</p>
+      <span class="proto">Concept preview by ARQVEL</span>
+    </div>
+  </div>
+</footer>
+
+<button id="trayBtn"><span class="cnt" id="tCnt">0</span><span><small id="tLabel">Your order</small><b id="tTot">₹0</b></span></button>
+<div id="scrim"></div>
+<aside id="tray">
+  <div class="tray-h"><h3 id="tTitle">Your order</h3><button class="x" id="tClose" aria-label="Close">✕</button></div>
+  <div class="tray-list" id="tList"></div>
+  <div class="tray-f">
+    <div class="r"><span>Subtotal</span><span id="tSub">₹0</span></div>
+    <div class="r"><span>GST (5%)</span><span id="tGst">₹0</span></div>
+    <div class="r t"><span>Total</span><span id="tAll">₹0</span></div>
+    <div class="who-row">
+      <label>Your name<input id="tName" maxlength="40" placeholder="e.g. Priya" autocomplete="given-name"></label>
+      <label>Table no.<select id="tTable"><option value="">Select</option></select></label>
+    </div>
+    <textarea class="tray-note" id="tNote" rows="2" maxlength="300" placeholder="Note for the kitchen (less spicy, no onion…)"></textarea>
+    <div class="tray-info" id="tInfo"></div>
+    <button class="btn" id="tSend">Place order</button>
+  </div>
+</aside>
+<div id="confirm" role="dialog" aria-modal="true"><div class="sheet" id="sheet"></div></div>
+<div id="toast"></div>
+
+<script src="js/vendor/three.min.js"></script>
+<script src="js/vendor/supabase.js"></script>
+<script src="js/vendor/qrcode.js"></script>
+<script src="js/config.js"></script>
+<script src="js/menu.js"></script>
+<script src="js/store.js"></script>
+<script src="js/scene.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
+
